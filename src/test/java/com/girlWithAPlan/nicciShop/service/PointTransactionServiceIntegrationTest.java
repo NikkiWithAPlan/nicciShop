@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -18,18 +19,22 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneId;
+import java.util.NoSuchElementException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@Transactional
 public class PointTransactionServiceIntegrationTest {
 
     public static final BigDecimal POINT_AMOUNT = new BigDecimal("20.2003");
 
     private static Clock clock;
+    private static PointTransaction newPointTransaction;
 
     @Autowired
     private PointTransactionService pointTransactionService;
@@ -42,13 +47,18 @@ public class PointTransactionServiceIntegrationTest {
     @BeforeAll
     public static void setup() {
         clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+
+        newPointTransaction = PointTransaction.builder()
+                .pointAmount(POINT_AMOUNT)
+                .status(TransactionStatus.COMPLETED)
+                .createdAt(LocalDateTime.now(clock))
+                .build();
     }
 
     @Test
-    public void createNewPointTransaction_returnsPointTransaction() {
+    public void createNewPointTransaction_whenShopperIsValid_returnsPointTransaction() {
         // given
-        // assuming Shopper already exist;
-        // and there is no way to call the createNewPointTransaction method without a Shopper
+        // assuming Shopper already exist
         Shopper shopper = shopperRepository.save(Shopper.builder()
                 .firstName("Lily")
                 .lastName("Lilium")
@@ -62,12 +72,6 @@ public class PointTransactionServiceIntegrationTest {
                                 .build())
                 .build());
 
-        PointTransaction newPointTransaction = PointTransaction.builder()
-                .pointAmount(POINT_AMOUNT)
-                .status(TransactionStatus.COMPLETED)
-                .createdAt(LocalDateTime.now(clock))
-                .build();
-
         // when
         PointTransaction result = pointTransactionService.createNewPointTransaction(newPointTransaction, shopper.getId());
 
@@ -77,5 +81,17 @@ public class PointTransactionServiceIntegrationTest {
         assertThat(result.getShopper(), is(equalTo(shopper)));
         assertThat(result.getShopper().getId(), is(equalTo(shopper.getId())));
         assertThat(result.getCreatedAt(), is(equalTo(LocalDateTime.now(clock))));
+    }
+
+    @Test
+    public void createNewPointTransaction_whenShopperIsNotValid_throwsNoSuchElementException() {
+        // given
+
+        // when
+        NoSuchElementException result = assertThrows(NoSuchElementException.class,
+                () -> pointTransactionService.createNewPointTransaction(newPointTransaction, 3L));
+
+        // then
+        assertThat(result.getMessage(), is(equalTo("Shopper not found for id=" + 3)));
     }
 }
