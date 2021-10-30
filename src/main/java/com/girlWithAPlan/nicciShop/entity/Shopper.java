@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
@@ -19,6 +20,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Entity
 @Table(name = "shopper")
@@ -47,6 +49,10 @@ public class Shopper {
 
     @Past
     private LocalDate dateOfBirth;
+
+    @OneToMany(mappedBy = "shopper")
+    @ToString.Exclude
+    private Set<PointTransaction> pointTransactions;
 
     @DecimalMin(value = "0.0", inclusive = false)
     @Digits(integer = 10, fraction = 4)

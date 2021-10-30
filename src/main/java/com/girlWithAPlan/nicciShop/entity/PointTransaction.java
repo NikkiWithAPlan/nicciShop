@@ -7,9 +7,12 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
@@ -43,5 +46,10 @@ public class PointTransaction {
 
     @PastOrPresent
     private LocalDateTime updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shopper_id", nullable = false)
+    @ToString.Exclude
+    private Shopper shopper;
 
 }
