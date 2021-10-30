@@ -68,6 +68,7 @@ public class PointTransactionServiceIntegrationTest {
         assertThat(result.getPointAmount(), is(equalTo(POINT_AMOUNT)));
         assertThat(result.getStatus(), is(equalTo(TransactionStatus.COMPLETED)));
         assertThat(result.getShopper(), is(equalTo(shopper)));
+        assertThat(result.getShopper().getId(), is(equalTo(shopper.getId())));
         assertThat(result.getCreatedAt(), is(equalTo(LocalDateTime.now(clock))));
     }
 }
