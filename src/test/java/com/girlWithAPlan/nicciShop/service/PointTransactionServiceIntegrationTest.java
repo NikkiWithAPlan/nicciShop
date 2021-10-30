@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Transactional
 public class PointTransactionServiceIntegrationTest {
 
-    public static final BigDecimal POINT_AMOUNT = new BigDecimal("20.2003");
+    private static final BigDecimal POINT_AMOUNT = new BigDecimal("20.2003");
 
     private static Clock clock;
     private static PointTransaction newPointTransaction;
