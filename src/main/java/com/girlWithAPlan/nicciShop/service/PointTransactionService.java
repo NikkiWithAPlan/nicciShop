@@ -7,8 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.Valid;
-
 @Service
 public class PointTransactionService {
 
@@ -21,9 +19,9 @@ public class PointTransactionService {
         this.pointTransactionRepository = pointTransactionRepository;
     }
 
-    public PointTransaction createNewPointTransaction(@Valid PointTransaction pointTransaction) {
+    public PointTransaction createNewPointTransaction(PointTransaction pointTransaction) {
         LOGGER.info("Create new PointTransaction={}", pointTransaction);
-        return null;
+        return pointTransactionRepository.save(pointTransaction);
     }
 
 }
