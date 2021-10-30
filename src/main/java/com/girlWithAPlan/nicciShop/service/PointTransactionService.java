@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+
 @Service
 public class PointTransactionService {
 
@@ -27,7 +29,8 @@ public class PointTransactionService {
     public PointTransaction createNewPointTransaction(PointTransaction pointTransaction, Long shopperId) {
         LOGGER.info("Create new PointTransaction={} for ShopperId={}", pointTransaction, shopperId);
 
-        Shopper shopper = shopperRepository.getById(shopperId);
+        Shopper shopper = shopperRepository.findById(shopperId)
+                .orElseThrow(() -> new NoSuchElementException("Shopper not found for id=" + shopperId));
 
         pointTransaction.setShopper(shopper);
 
