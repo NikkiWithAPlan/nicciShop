@@ -8,10 +8,13 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
@@ -59,4 +62,9 @@ public class Shopper {
     @DecimalMin(value = "0.0", inclusive = false)
     @Digits(integer = 10, fraction = 4)
     private BigDecimal balance;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "address_id")
+    @ToString.Exclude
+    private Address address;
 }
