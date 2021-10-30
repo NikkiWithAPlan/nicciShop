@@ -1,6 +1,5 @@
 package com.girlWithAPlan.nicciShop.entity;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +21,10 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "point_transaction")
 @Builder
-@AllArgsConstructor
+@RequiredArgsConstructor
 @ToString
 @Getter
 @Setter
-@RequiredArgsConstructor
 public class PointTransaction {
 
     @Id

@@ -1,6 +1,5 @@
 package com.girlWithAPlan.nicciShop.entity;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +23,10 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "shopper")
 @Builder
-@AllArgsConstructor
+@RequiredArgsConstructor
 @ToString
 @Getter
 @Setter
-@RequiredArgsConstructor
 public class Shopper {
 
     @Id
