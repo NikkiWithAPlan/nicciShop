@@ -1,8 +1,9 @@
 package com.girlWithAPlan.nicciShop.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -24,7 +25,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "point_transaction")
 @Builder
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString
 @Getter
 @Setter
