@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -46,6 +48,10 @@ public class PointTransactionService {
         pointTransaction.setShopper(shopper);
 
         return pointTransactionRepository.save(pointTransaction);
+    }
+
+    public List<PointTransaction> getPointTransactionsByShopperIdAndDateRange(Long shopperId, LocalDate startDate, LocalDate endDate) {
+        return null;
     }
 
 }

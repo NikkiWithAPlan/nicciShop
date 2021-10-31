@@ -19,6 +19,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -137,5 +139,44 @@ public class PointTransactionServiceIntegrationTest {
         // then
         assertThat(result.getMessage(),
                     is(equalTo("TransactionStatus cannot be " + TransactionStatus.REFUNDED)));
+    }
+
+    @Test
+    public void getPointTransactionsByShopperIdAndDate_whenAllTransactionsAreWithinDateRange_returnsListOfPointTransactions() {
+        // given
+        // assuming Shopper already exist
+        Shopper shopper1 = shopperRepository.save(shopper);
+
+        PointTransaction pointTransaction1 = PointTransaction.builder()
+                .pointAmount(POINT_AMOUNT)
+                .status(TransactionStatus.COMPLETED)
+                .createdAt(LocalDateTime.of(2020, 4, 13, 11, 34, 12))
+                .shopper(shopper1)
+                .build();
+
+        PointTransaction pointTransaction2 = PointTransaction.builder()
+                .pointAmount(POINT_AMOUNT.add(new BigDecimal("20")))
+                .status(TransactionStatus.COMPLETED)
+                .createdAt(LocalDateTime.of(2020, 6, 17, 11, 34, 12))
+                .shopper(shopper1)
+                .build();
+
+        PointTransaction pointTransaction3 = PointTransaction.builder()
+                .pointAmount(POINT_AMOUNT.add(new BigDecimal("10.34")))
+                .status(TransactionStatus.COMPLETED)
+                .createdAt(LocalDateTime.of(2021, 3, 24, 11, 34, 12))
+                .shopper(shopper1)
+                .build();
+
+        List<PointTransaction> pointTransactionList = Arrays.asList(pointTransaction1, pointTransaction2, pointTransaction3);
+        pointTransactionRepository.saveAll(pointTransactionList);
+
+        // when
+        List<PointTransaction> result = pointTransactionService.getPointTransactionsByShopperIdAndDateRange(shopper1.getId(),
+                                                                            LocalDate.of(2020, 4, 13),
+                                                                            LocalDate.of(2021, 3, 24));
+
+        // then
+        assertThat(result.size(), is(equalTo(pointTransactionList.size())));
     }
 }
