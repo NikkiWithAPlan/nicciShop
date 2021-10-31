@@ -109,6 +109,19 @@ public class PointTransactionControllerIntegrationTest {
                 .andExpect(status().isUnprocessableEntity());
     }
 
+    @Test
+    public void createNewPointTransaction_whenShopperIsNull_returnsUnprocessableEntityStatus() throws Exception {
+        // given
+        pointTransaction.setShopper(null);
+
+        // when // then
+        mockMvc.perform(post("/api/createPointTransaction")
+                        .content(getAsJsonString(pointTransaction))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
     private String getAsJsonString(final Object object) {
         try {
             return MAPPER.writeValueAsString(object);
