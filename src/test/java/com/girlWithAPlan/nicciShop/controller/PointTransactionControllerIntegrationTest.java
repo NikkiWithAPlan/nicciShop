@@ -178,6 +178,21 @@ public class PointTransactionControllerIntegrationTest {
                 .andExpect(status().isUnprocessableEntity());
     }
 
+    @Test
+    public void getPointTransactionsByShopperIdAndDate_whenStartDateIsAfterEndDate_returnsUnprocessableEntityStatus() throws Exception {
+        // given
+        given(pointTransactionServiceMock.getPointTransactionsByShopperIdAndDateRange(anyLong(), any(LocalDate.class), any(LocalDate.class)))
+                .willThrow(IllegalArgumentException.class);
+
+        // when // then
+        mockMvc.perform(get("/api/pointTransactions/{id}/{startDate}/{endDate}",
+                        1L,
+                        LocalDate.of(2021, 4, 13),
+                        LocalDate.of(2020, 3, 12))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
     private String getAsJsonString(final Object object) {
         try {
             return MAPPER.writeValueAsString(object);
