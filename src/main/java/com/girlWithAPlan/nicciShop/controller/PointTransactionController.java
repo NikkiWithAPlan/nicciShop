@@ -33,6 +33,10 @@ public class PointTransactionController {
     public ResponseEntity<PointTransaction> createPointTransaction(@Valid @RequestBody PointTransaction pointTransaction) {
         LOGGER.info("POST new point transaction={}", pointTransaction);
 
+        if (pointTransaction.getShopper() == null) {
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+
         Long shopperId = pointTransaction.getShopper().getId();
 
         try {
