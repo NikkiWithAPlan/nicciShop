@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+/**
+ * Service class for PointTransaction
+ */
 @Service
 public class PointTransactionService {
 
@@ -30,6 +33,16 @@ public class PointTransactionService {
         this.shopperRepository = shopperRepository;
     }
 
+    /**
+     * Creates a new PointTransaction for a Shopper and updates the Shopper's balance
+     *
+     * @param pointTransaction  the new PointTransaction to be saved
+     * @param shopperId         the id of the Shopper who owns the transaction
+     *
+     * @return                              the created PointTransaction
+     * @throws IllegalArgumentException     when transaction status is REFUNDED
+     * @throws NoSuchElementException       when Shopper does not exist with shopperId
+     */
     public PointTransaction createNewPointTransaction(PointTransaction pointTransaction, Long shopperId) throws IllegalArgumentException, NoSuchElementException {
         LOGGER.info("Create new PointTransaction= {} for ShopperId= {}", pointTransaction, shopperId);
 
@@ -48,10 +61,25 @@ public class PointTransactionService {
 
         pointTransaction.setShopper(shopper);
 
-        return pointTransactionRepository.save(pointTransaction);
+        PointTransaction newPointTransaction = pointTransactionRepository.save(pointTransaction);
+
+        LOGGER.info("New PointTransaction has been saved successfully, PointTransaction= {}", newPointTransaction);
+
+        return newPointTransaction;
     }
 
-    public List<PointTransaction> getPointTransactionsByShopperIdAndDateRange(Long shopperId, LocalDate startDate, LocalDate endDate) {
+    /**
+     * Retrieves a list of PointTransactions which meets the filter criteria
+     *
+     * @param shopperId     for the Shopper
+     * @param startDate     the first date for the date range
+     * @param endDate       the second date for the date range
+     *
+     * @return                              a list of PointTransactions
+     * @throws IllegalArgumentException     when the start date is after the end date
+     * @throws NoSuchElementException       when Shopper does not exist with shopperId
+     */
+    public List<PointTransaction> getPointTransactionsByShopperIdAndDateRange(Long shopperId, LocalDate startDate, LocalDate endDate) throws IllegalArgumentException, NoSuchElementException {
         shopperRepository.findById(shopperId)
                 .orElseThrow(() -> new NoSuchElementException("Shopper not found for id= " + shopperId));
 

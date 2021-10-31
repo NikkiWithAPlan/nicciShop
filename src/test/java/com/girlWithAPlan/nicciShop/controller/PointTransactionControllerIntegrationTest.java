@@ -116,6 +116,8 @@ public class PointTransactionControllerIntegrationTest {
     public void createNewPointTransaction_whenShopperIsNull_returnsUnprocessableEntityStatus() throws Exception {
         // given
         newPointTransaction.setShopper(null);
+        given(pointTransactionServiceMock.createNewPointTransaction(any(PointTransaction.class), anyLong()))
+                .willThrow(NoSuchElementException.class);
 
         // when // then
         mockMvc.perform(post("/api/createPointTransaction")

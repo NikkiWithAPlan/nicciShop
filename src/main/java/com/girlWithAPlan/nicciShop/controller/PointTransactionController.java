@@ -22,6 +22,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * Rest controller for PointTransaction
+ */
 @RestController
 @RequestMapping("/api")
 public class PointTransactionController {
@@ -35,6 +38,14 @@ public class PointTransactionController {
         this.pointTransactionService = pointTransactionService;
     }
 
+    /**
+     * Sends a request to {@link PointTransactionService} with a new PointTransaction for a Shopper
+     *
+     * @param pointTransaction  the new PointTransaction which needs to be created
+     *
+     * @return                  the created new PointTransaction with status code 200.
+     *                          Otherwise, returns status code 422.
+     */
     @PostMapping("/createPointTransaction")
     public ResponseEntity<PointTransaction> createPointTransaction(@Valid @RequestBody PointTransaction pointTransaction) {
         LOGGER.info("POST request was submitted to create new PointTransaction= {}", pointTransaction);
@@ -60,6 +71,16 @@ public class PointTransactionController {
         }
     }
 
+    /**
+     * Sends a request {@link PointTransactionService} with a shopperId and date range to retrieve a PointTransaction list
+     *
+     * @param shopperId     for which the list is requested
+     * @param startDate     the first date for the date range
+     * @param endDate       the second date for the date range
+     *
+     * @return         a list of PointTransactions with status code 200.
+     *                 Otherwise, status code 422.
+     */
     @GetMapping("pointTransactions/{shopperId}/{startDate}/{endDate}")
     public ResponseEntity<List<PointTransaction>> getPointTransactionsByShopperIdAndDate(
             @PathVariable(value = "shopperId") Long shopperId,
