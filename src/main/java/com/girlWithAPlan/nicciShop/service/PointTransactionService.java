@@ -27,7 +27,7 @@ public class PointTransactionService {
         this.shopperRepository = shopperRepository;
     }
 
-    public PointTransaction createNewPointTransaction(PointTransaction pointTransaction, Long shopperId) throws NoSuchElementException {
+    public PointTransaction createNewPointTransaction(PointTransaction pointTransaction, Long shopperId) throws IllegalArgumentException, NoSuchElementException {
         LOGGER.info("Create new PointTransaction={} for ShopperId={}", pointTransaction, shopperId);
 
         Shopper shopper = shopperRepository.findById(shopperId)
@@ -37,6 +37,9 @@ public class PointTransactionService {
         if (TransactionStatus.COMPLETED.equals(pointTransaction.getStatus())) {
             shopper.setBalance(shopper.getBalance().add(pointTransaction.getPointAmount()));
             LOGGER.info("New Shopper.balance={}", shopper.getBalance());
+        } else if (TransactionStatus.REFUNDED.equals(pointTransaction.getStatus())) {
+            LOGGER.warn("PointTransaction cannot be created when TransactionStatus is {}", pointTransaction.getStatus());
+            throw new IllegalArgumentException("PointTransaction cannot be created when TransactionStatus is REFUNDED");
         }
 
         pointTransaction.setShopper(shopper);
