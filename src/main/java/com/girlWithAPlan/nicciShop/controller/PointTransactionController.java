@@ -7,12 +7,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Past;
+import javax.validation.constraints.PastOrPresent;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -51,5 +57,13 @@ public class PointTransactionController {
             LOGGER.warn("PointTransaction cannot be created, reason= {}, PointTransaction= {}", e.getMessage(), pointTransaction);
             return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
         }
+    }
+
+    @GetMapping("pointTransactions/{shopperId}/{startDate}/{endDate}")
+    public List<PointTransaction> getPointTransactionsByShopperIdAndDate(
+            @PathVariable(value = "shopperId") Long shopperId,
+            @PathVariable(value = "startDate") @Past LocalDate startDate,
+            @PathVariable(value = "endDate") @PastOrPresent LocalDate endDate) {
+        return null;
     }
 }

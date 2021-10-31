@@ -16,6 +16,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.Valid;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Email;
@@ -56,7 +57,6 @@ public class Shopper {
     private LocalDate dateOfBirth;
 
     @OneToMany(mappedBy = "shopper")
-    @ToString.Exclude
     private Set<PointTransaction> pointTransactions;
 
     @DecimalMin(value = "0.0")
@@ -66,5 +66,6 @@ public class Shopper {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id")
     @ToString.Exclude
+    @Valid
     private Address address;
 }

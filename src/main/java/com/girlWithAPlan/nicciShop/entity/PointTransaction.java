@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.Valid;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
@@ -52,6 +53,7 @@ public class PointTransaction {
 
     @ManyToOne
     @JoinColumn(name = "shopper_id", nullable = false)
+    @Valid
     private Shopper shopper;
 
     @Override

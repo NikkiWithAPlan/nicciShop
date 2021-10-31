@@ -23,6 +23,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -31,6 +33,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -135,6 +138,22 @@ public class PointTransactionControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    public void getPointTransactionsByShopperIdAndDate_whenAllTransactionsAreWithinDateRange_returnsListOfPointTransactions() throws Exception {
+        // given
+        given(pointTransactionServiceMock.getPointTransactionsByShopperIdAndDateRange(anyLong(), any(LocalDate.class), any(LocalDate.class)))
+                .willReturn(List.of(pointTransaction));
+
+        // when // then
+        mockMvc.perform(get("/api/pointTransactions/{id}/{startDate}/{endDate}",
+                            1L,
+                                    LocalDate.of(2020, 4, 13),
+                                    LocalDate.of(2021, 3, 12))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     private String getAsJsonString(final Object object) {
