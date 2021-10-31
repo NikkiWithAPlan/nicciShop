@@ -77,7 +77,7 @@ public class PointTransactionController {
             LOGGER.info("PointTransaction list has been retrieved successfully, {}", responseEntity.getBody());
 
             return responseEntity;
-        } catch (NoSuchElementException e) {
+        } catch (NoSuchElementException | IllegalArgumentException e) {
             LOGGER.warn("Requested PointTransaction list cannot be retrieved, reason= {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
         }
