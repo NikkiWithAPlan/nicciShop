@@ -5,6 +5,7 @@ import com.girlWithAPlan.nicciShop.service.PointTransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -60,10 +62,15 @@ public class PointTransactionController {
     }
 
     @GetMapping("pointTransactions/{shopperId}/{startDate}/{endDate}")
+    @ResponseStatus(HttpStatus.OK)
     public List<PointTransaction> getPointTransactionsByShopperIdAndDate(
             @PathVariable(value = "shopperId") Long shopperId,
-            @PathVariable(value = "startDate") @Past LocalDate startDate,
-            @PathVariable(value = "endDate") @PastOrPresent LocalDate endDate) {
-        return null;
+            @PathVariable(value = "startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") @Past LocalDate startDate,
+            @PathVariable(value = "endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") @PastOrPresent LocalDate endDate) {
+
+        LOGGER.info("GET request was submitted to retrieve all PointTransactions by shopperId= {} , startDate= {} and endDate= {}",
+                shopperId, startDate, endDate);
+
+        return pointTransactionService.getPointTransactionsByShopperIdAndDateRange(shopperId, startDate, endDate);
     }
 }

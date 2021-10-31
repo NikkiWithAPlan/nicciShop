@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -23,7 +24,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -44,7 +44,7 @@ public class PointTransactionControllerIntegrationTest {
     private static final ObjectMapper MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
     private static final Clock CLOCK = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
-    private static PointTransaction pointTransaction;
+    private static PointTransaction newPointTransaction;
 
     @MockBean
     private PointTransactionService pointTransactionServiceMock;
@@ -71,7 +71,7 @@ public class PointTransactionControllerIntegrationTest {
                 .address(address)
                 .build();
 
-        pointTransaction = PointTransaction.builder()
+        newPointTransaction = PointTransaction.builder()
                 .pointTransactionId(1L)
                 .pointAmount(POINT_AMOUNT)
                 .status(TransactionStatus.COMPLETED)
@@ -84,29 +84,29 @@ public class PointTransactionControllerIntegrationTest {
     public void createNewPointTransaction_returnsPointTransaction() throws Exception {
         // given
         given(pointTransactionServiceMock.createNewPointTransaction(any(PointTransaction.class), anyLong()))
-                .willReturn(pointTransaction);
+                .willReturn(newPointTransaction);
 
         // when
         String result = mockMvc.perform(post("/api/createPointTransaction")
-                                        .content(getAsJsonString(pointTransaction))
+                                        .content(getAsJsonString(newPointTransaction))
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .accept(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isCreated())
                                 .andReturn().getResponse().getContentAsString();
 
         // then
-        assertThat(getPointTransaction(result), is(equalTo(pointTransaction)));
+        assertThat(getPointTransaction(result), is(equalTo(newPointTransaction)));
     }
 
     @Test
     public void createNewPointTransaction_whenShopperDoesNotExist_returnsUnprocessableEntityStatus() throws Exception {
         // given
         given(pointTransactionServiceMock.createNewPointTransaction(any(PointTransaction.class), anyLong()))
-                .willThrow(new NoSuchElementException("Shopper not found for id=" + pointTransaction.getShopper().getId()));
+                .willThrow(new NoSuchElementException("Shopper not found for id=" + newPointTransaction.getShopper().getId()));
 
         // when // then
         mockMvc.perform(post("/api/createPointTransaction")
-                        .content(getAsJsonString(pointTransaction))
+                        .content(getAsJsonString(newPointTransaction))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnprocessableEntity());
@@ -115,11 +115,11 @@ public class PointTransactionControllerIntegrationTest {
     @Test
     public void createNewPointTransaction_whenShopperIsNull_returnsUnprocessableEntityStatus() throws Exception {
         // given
-        pointTransaction.setShopper(null);
+        newPointTransaction.setShopper(null);
 
         // when // then
         mockMvc.perform(post("/api/createPointTransaction")
-                        .content(getAsJsonString(pointTransaction))
+                        .content(getAsJsonString(newPointTransaction))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnprocessableEntity());
@@ -128,13 +128,13 @@ public class PointTransactionControllerIntegrationTest {
     @Test
     public void createNewPointTransaction_whenTransactionStatusIsREFUNDED_returnsUnprocessableEntityStatus() throws Exception {
         // given
-        pointTransaction.setStatus(TransactionStatus.REFUNDED);
+        newPointTransaction.setStatus(TransactionStatus.REFUNDED);
         given(pointTransactionServiceMock.createNewPointTransaction(any(PointTransaction.class), anyLong()))
-                .willThrow(new IllegalArgumentException("TransactionStatus cannot be " + pointTransaction.getStatus()));
+                .willThrow(new IllegalArgumentException("TransactionStatus cannot be " + newPointTransaction.getStatus()));
 
         // when // then
         mockMvc.perform(post("/api/createPointTransaction")
-                        .content(getAsJsonString(pointTransaction))
+                        .content(getAsJsonString(newPointTransaction))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnprocessableEntity());
@@ -143,6 +143,9 @@ public class PointTransactionControllerIntegrationTest {
     @Test
     public void getPointTransactionsByShopperIdAndDate_whenAllTransactionsAreWithinDateRange_returnsListOfPointTransactions() throws Exception {
         // given
+        PointTransaction pointTransaction = newPointTransaction;
+        pointTransaction.setCreatedAt(LocalDateTime.of(2021, 1, 14, 16, 35, 11));
+
         given(pointTransactionServiceMock.getPointTransactionsByShopperIdAndDateRange(anyLong(), any(LocalDate.class), any(LocalDate.class)))
                 .willReturn(List.of(pointTransaction));
 
@@ -151,7 +154,6 @@ public class PointTransactionControllerIntegrationTest {
                             1L,
                                     LocalDate.of(2020, 4, 13),
                                     LocalDate.of(2021, 3, 12))
-                        .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
