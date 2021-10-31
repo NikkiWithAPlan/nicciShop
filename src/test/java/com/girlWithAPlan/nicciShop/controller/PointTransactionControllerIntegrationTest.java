@@ -99,7 +99,7 @@ public class PointTransactionControllerIntegrationTest {
     public void createNewPointTransaction_whenShopperDoesNotExist_returnsUnprocessableEntityStatus() throws Exception {
         // given
         given(pointTransactionServiceMock.createNewPointTransaction(any(PointTransaction.class), anyLong()))
-                .willThrow(NoSuchElementException.class);
+                .willThrow(new NoSuchElementException("Shopper not found for id=" + pointTransaction.getShopper().getId()));
 
         // when // then
         mockMvc.perform(post("/api/createPointTransaction")
@@ -127,7 +127,7 @@ public class PointTransactionControllerIntegrationTest {
         // given
         pointTransaction.setStatus(TransactionStatus.REFUNDED);
         given(pointTransactionServiceMock.createNewPointTransaction(any(PointTransaction.class), anyLong()))
-                .willThrow(new IllegalArgumentException("PointTransaction cannot be created when TransactionStatus is REFUNDED"));
+                .willThrow(new IllegalArgumentException("TransactionStatus cannot be " + pointTransaction.getStatus()));
 
         // when // then
         mockMvc.perform(post("/api/createPointTransaction")

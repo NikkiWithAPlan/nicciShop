@@ -38,8 +38,7 @@ public class PointTransactionService {
             shopper.setBalance(shopper.getBalance().add(pointTransaction.getPointAmount()));
             LOGGER.info("New Shopper.balance={}", shopper.getBalance());
         } else if (TransactionStatus.REFUNDED.equals(pointTransaction.getStatus())) {
-            LOGGER.warn("PointTransaction cannot be created when TransactionStatus is {}", pointTransaction.getStatus());
-            throw new IllegalArgumentException("PointTransaction cannot be created when TransactionStatus is REFUNDED");
+            throw new IllegalArgumentException("TransactionStatus cannot be " + pointTransaction.getStatus());
         }
 
         pointTransaction.setShopper(shopper);
