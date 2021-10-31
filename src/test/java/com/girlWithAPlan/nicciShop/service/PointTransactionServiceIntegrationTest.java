@@ -130,4 +130,18 @@ public class PointTransactionServiceIntegrationTest {
         // then
         assertThat(result.getMessage(), is(equalTo("Shopper not found for id=" + 3)));
     }
+
+    @Test
+    public void createNewPointTransaction_whenTransactionStatusIsREFUNDED_throwsIllegalArgumentException() {
+        // given
+        newPointTransaction.setStatus(TransactionStatus.REFUNDED);
+
+        // when
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class,
+                () -> pointTransactionService.createNewPointTransaction(newPointTransaction, 3L));
+
+        // then
+        assertThat(result.getMessage(),
+                    is(equalTo("PointTransaction cannot be created when TransactionStatus is REFUNDED")));
+    }
 }
