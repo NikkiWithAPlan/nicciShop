@@ -122,6 +122,21 @@ public class PointTransactionControllerIntegrationTest {
                 .andExpect(status().isUnprocessableEntity());
     }
 
+    @Test
+    public void createNewPointTransaction_whenTransactionStatusIsREFUNDED_returnsUnprocessableEntityStatus() throws Exception {
+        // given
+        pointTransaction.setStatus(TransactionStatus.REFUNDED);
+        given(pointTransactionServiceMock.createNewPointTransaction(any(PointTransaction.class), anyLong()))
+                .willThrow(new IllegalArgumentException("PointTransaction cannot be created when TransactionStatus is REFUNDED"));
+
+        // when // then
+        mockMvc.perform(post("/api/createPointTransaction")
+                        .content(getAsJsonString(pointTransaction))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
     private String getAsJsonString(final Object object) {
         try {
             return MAPPER.writeValueAsString(object);
