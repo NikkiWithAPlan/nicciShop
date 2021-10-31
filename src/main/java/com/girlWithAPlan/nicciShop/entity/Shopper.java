@@ -59,7 +59,7 @@ public class Shopper {
     @ToString.Exclude
     private Set<PointTransaction> pointTransactions;
 
-    @DecimalMin(value = "0.0", inclusive = false)
+    @DecimalMin(value = "0.0")
     @Digits(integer = 10, fraction = 4)
     private BigDecimal balance;
 

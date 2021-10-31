@@ -35,6 +35,7 @@ public class PointTransactionServiceIntegrationTest {
 
     private static Clock clock;
     private static PointTransaction newPointTransaction;
+    private static Shopper shopper;
 
     @Autowired
     private PointTransactionService pointTransactionService;
@@ -56,7 +57,7 @@ public class PointTransactionServiceIntegrationTest {
     }
 
     @Test
-    public void createNewPointTransaction_whenShopperIsValid_returnsPointTransaction() {
+    public void createNewPointTransaction_whenShopperIsValidWithBalanceZero_returnsPointTransaction() {
         // given
         // assuming Shopper already exist
         Shopper shopper = shopperRepository.save(Shopper.builder()
@@ -72,14 +73,49 @@ public class PointTransactionServiceIntegrationTest {
                                 .build())
                 .build());
 
+        shopper.setBalance(new BigDecimal("0.0000"));
+
         // when
         PointTransaction result = pointTransactionService.createNewPointTransaction(newPointTransaction, shopper.getId());
 
         // then
         assertThat(result.getPointAmount(), is(equalTo(POINT_AMOUNT)));
-        assertThat(result.getStatus(), is(equalTo(TransactionStatus.COMPLETED)));
         assertThat(result.getShopper(), is(equalTo(shopper)));
         assertThat(result.getShopper().getId(), is(equalTo(shopper.getId())));
+        assertThat(result.getShopper().getBalance(), is(equalTo(POINT_AMOUNT)));
+        assertThat(result.getStatus(), is(equalTo(TransactionStatus.COMPLETED)));
+        assertThat(result.getCreatedAt(), is(equalTo(LocalDateTime.now(clock))));
+    }
+
+    @Test
+    public void createNewPointTransaction_whenShopperIsValidWithBalance240_returnsPointTransaction() {
+        // given
+        // assuming Shopper already exist
+        Shopper shopper = shopperRepository.save(Shopper.builder()
+                .firstName("Lily")
+                .lastName("Lilium")
+                .email("Lily@Lilium.com")
+                .dateOfBirth(LocalDate.of(1974, Month.FEBRUARY, 12))
+                .address(Address.builder()
+                        .addressLine(any(String.class).toString())
+                        .city(any(String.class).toString())
+                        .postCode(any(String.class).toString())
+                        .country(any(String.class).toString())
+                        .build())
+                .build());
+
+        BigDecimal oldBalance = new BigDecimal("240.0000");
+        shopper.setBalance(oldBalance);
+
+        // when
+        PointTransaction result = pointTransactionService.createNewPointTransaction(newPointTransaction, shopper.getId());
+
+        // then
+        assertThat(result.getPointAmount(), is(equalTo(POINT_AMOUNT)));
+        assertThat(result.getShopper(), is(equalTo(shopper)));
+        assertThat(result.getShopper().getId(), is(equalTo(shopper.getId())));
+        assertThat(result.getShopper().getBalance(), is(equalTo(oldBalance.add(POINT_AMOUNT))));
+        assertThat(result.getStatus(), is(equalTo(TransactionStatus.COMPLETED)));
         assertThat(result.getCreatedAt(), is(equalTo(LocalDateTime.now(clock))));
     }
 
