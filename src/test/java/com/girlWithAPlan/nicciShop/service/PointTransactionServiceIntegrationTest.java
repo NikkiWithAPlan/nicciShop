@@ -180,10 +180,29 @@ public class PointTransactionServiceIntegrationTest {
 
         // when
         List<PointTransaction> result = pointTransactionService.getPointTransactionsByShopperIdAndDateRange(shopper1.getId(),
-                                                                            LocalDate.of(2020, 4, 13),
-                                                                            LocalDate.of(2021, 3, 24));
+                                                                    LocalDate.of(2020, 4, 13),
+                                                                    LocalDate.of(2021, 3, 24));
 
         // then
         assertThat(result.size(), is(equalTo(pointTransactionList.size())));
+    }
+
+    @Test
+    public void getPointTransactionsByShopperIdAndDate_whenStartDateIsAfterEndDate_throwsIllegalArgumentException() {
+        // given
+        // assuming Shopper already exist
+        Shopper shopper1 = shopperRepository.save(shopper);
+        LocalDate startDate = LocalDate.of(2021, 4, 13);
+        LocalDate endDate = LocalDate.of(2020, 3, 24);
+
+        // when
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class,
+                () -> pointTransactionService.getPointTransactionsByShopperIdAndDateRange(shopper1.getId(),
+                                                startDate, endDate));
+
+
+        // then
+        assertThat(result.getMessage(),
+                is(equalTo("startDate= " + startDate + " cannot be after endDate= " + endDate)));
     }
 }
