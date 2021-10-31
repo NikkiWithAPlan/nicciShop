@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api")
@@ -28,12 +30,16 @@ public class PointTransactionController {
     }
 
     @PostMapping("/createPointTransaction")
-    @ResponseStatus(HttpStatus.CREATED)
-    public PointTransaction createPointTransaction(@Valid @RequestBody PointTransaction pointTransaction) {
+    public ResponseEntity<PointTransaction> createPointTransaction(@Valid @RequestBody PointTransaction pointTransaction) {
         LOGGER.info("POST new point transaction={}", pointTransaction);
 
         Long shopperId = pointTransaction.getShopper().getId();
 
-        return pointTransactionService.createNewPointTransaction(pointTransaction, shopperId);
+        try {
+            return new ResponseEntity<>(pointTransactionService.createNewPointTransaction(pointTransaction, shopperId),
+                                        HttpStatus.CREATED);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
     }
 }

@@ -96,20 +96,17 @@ public class PointTransactionControllerIntegrationTest {
     }
 
     @Test
-    public void createNewPointTransaction_returnsUnprocessableEntityStatus() throws Exception {
+    public void createNewPointTransaction_whenShopperDoesNotExist_returnsUnprocessableEntityStatus() throws Exception {
         // given
         given(pointTransactionServiceMock.createNewPointTransaction(any(PointTransaction.class), anyLong()))
                 .willThrow(NoSuchElementException.class);
 
-        // when
-        String result = mockMvc.perform(post("/api/createPointTransaction")
+        // when // then
+        mockMvc.perform(post("/api/createPointTransaction")
                         .content(getAsJsonString(pointTransaction))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnprocessableEntity())
-                .andReturn().getResponse().getContentAsString();
-
-        // then
+                .andExpect(status().isUnprocessableEntity());
     }
 
     private String getAsJsonString(final Object object) {
