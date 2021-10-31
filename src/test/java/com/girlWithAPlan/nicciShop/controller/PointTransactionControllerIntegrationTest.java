@@ -144,6 +144,7 @@ public class PointTransactionControllerIntegrationTest {
     public void getPointTransactionsByShopperIdAndDate_whenAllTransactionsAreWithinDateRange_returnsListOfPointTransactions() throws Exception {
         // given
         PointTransaction pointTransaction = newPointTransaction;
+        pointTransaction.setStatus(TransactionStatus.COMPLETED);
         pointTransaction.setCreatedAt(LocalDateTime.of(2021, 1, 14, 16, 35, 11));
 
         given(pointTransactionServiceMock.getPointTransactionsByShopperIdAndDateRange(anyLong(), any(LocalDate.class), any(LocalDate.class)))
@@ -162,7 +163,24 @@ public class PointTransactionControllerIntegrationTest {
         assertThat(getPointTransactionList(result).get(0), is(equalTo(pointTransaction)));
     }
 
-    private String getAsJsonString(final Object object) {
+    @Test
+    public void getPointTransactionsByShopperIdAndDate_whenShopperNotFound_returnsUnprocessableEntityStatus() throws Exception {
+        // given
+        given(pointTransactionServiceMock.getPointTransactionsByShopperIdAndDateRange(anyLong(), any(LocalDate.class), any(LocalDate.class)))
+                .willThrow(NoSuchElementException.class);
+
+        // when // then
+        mockMvc.perform(get("/api/pointTransactions/{id}/{startDate}/{endDate}",
+                        1L,
+                        LocalDate.of(2020, 4, 13),
+                        LocalDate.of(2021, 3, 12))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+
+
+        private String getAsJsonString(final Object object) {
         try {
             return MAPPER.writeValueAsString(object);
         } catch (JsonProcessingException e) {
