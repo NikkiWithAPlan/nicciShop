@@ -119,7 +119,7 @@ public class PointTransactionServiceIntegrationTest {
                 () -> pointTransactionService.createNewPointTransaction(newPointTransaction, 3L));
 
         // then
-        assertThat(result.getMessage(), is(equalTo("Shopper not found for id=" + 3)));
+        assertThat(result.getMessage(), is(equalTo("Shopper not found for id= " + 3)));
     }
 
     @Test
@@ -136,6 +136,6 @@ public class PointTransactionServiceIntegrationTest {
 
         // then
         assertThat(result.getMessage(),
-                    is(equalTo("PointTransaction cannot be created when TransactionStatus is REFUNDED")));
+                    is(equalTo("TransactionStatus cannot be " + TransactionStatus.REFUNDED)));
     }
 }

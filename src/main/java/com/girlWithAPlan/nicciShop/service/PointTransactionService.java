@@ -28,15 +28,17 @@ public class PointTransactionService {
     }
 
     public PointTransaction createNewPointTransaction(PointTransaction pointTransaction, Long shopperId) throws IllegalArgumentException, NoSuchElementException {
-        LOGGER.info("Create new PointTransaction={} for ShopperId={}", pointTransaction, shopperId);
+        LOGGER.info("Create new PointTransaction= {} for ShopperId= {}", pointTransaction, shopperId);
 
         Shopper shopper = shopperRepository.findById(shopperId)
-                .orElseThrow(() -> new NoSuchElementException("Shopper not found for id=" + shopperId));
+                .orElseThrow(() -> new NoSuchElementException("Shopper not found for id= " + shopperId));
 
-        LOGGER.info("Update Shopper balance");
         if (TransactionStatus.COMPLETED.equals(pointTransaction.getStatus())) {
+            LOGGER.info("Update Shopper balance");
+
             shopper.setBalance(shopper.getBalance().add(pointTransaction.getPointAmount()));
-            LOGGER.info("New Shopper.balance={}", shopper.getBalance());
+
+            LOGGER.info("New Shopper.balance= {}", shopper.getBalance());
         } else if (TransactionStatus.REFUNDED.equals(pointTransaction.getStatus())) {
             throw new IllegalArgumentException("TransactionStatus cannot be " + pointTransaction.getStatus());
         }

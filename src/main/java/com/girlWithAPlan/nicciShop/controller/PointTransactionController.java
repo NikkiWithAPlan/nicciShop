@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -31,18 +30,25 @@ public class PointTransactionController {
 
     @PostMapping("/createPointTransaction")
     public ResponseEntity<PointTransaction> createPointTransaction(@Valid @RequestBody PointTransaction pointTransaction) {
-        LOGGER.info("POST new point transaction={}", pointTransaction);
+        LOGGER.info("POST request was submitted to create new PointTransaction= {}", pointTransaction);
 
         if (pointTransaction.getShopper() == null) {
+            LOGGER.warn("PointTransaction cannot be created, reason= Shopper must exist for PointTransaction={}", pointTransaction);
             return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
         Long shopperId = pointTransaction.getShopper().getId();
 
         try {
-            return new ResponseEntity<>(pointTransactionService.createNewPointTransaction(pointTransaction, shopperId),
+            ResponseEntity<PointTransaction> responseEntity =
+                    new ResponseEntity<>(pointTransactionService.createNewPointTransaction(pointTransaction, shopperId),
                                         HttpStatus.CREATED);
-        } catch (NoSuchElementException e) {
+
+            LOGGER.info("New PointTransaction has been successfully created, {}", pointTransaction);
+
+            return responseEntity;
+        } catch (NoSuchElementException | IllegalArgumentException e) {
+            LOGGER.warn("PointTransaction cannot be created, reason= {}, PointTransaction= {}", e.getMessage(), pointTransaction);
             return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
         }
     }
