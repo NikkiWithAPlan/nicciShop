@@ -9,7 +9,6 @@ import lombok.ToString;
 import org.hibernate.Hibernate;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -51,9 +50,8 @@ public class PointTransaction {
     @PastOrPresent
     private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "shopper_id", nullable = false)
-    @ToString.Exclude
     private Shopper shopper;
 
     @Override

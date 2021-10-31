@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class PointTransactionService {
@@ -51,7 +52,20 @@ public class PointTransactionService {
     }
 
     public List<PointTransaction> getPointTransactionsByShopperIdAndDateRange(Long shopperId, LocalDate startDate, LocalDate endDate) {
-        return null;
+        shopperRepository.findById(shopperId)
+                .orElseThrow(() -> new NoSuchElementException("Shopper not found for id= " + shopperId));
+
+        List<PointTransaction> allPointTransactionsByShopperId = pointTransactionRepository.findAllPointTransactionsByShopperId(shopperId);
+
+        List<PointTransaction> pointTransactionsWithinDateRange = allPointTransactionsByShopperId.stream()
+                .filter(pt -> pt.getCreatedAt().isAfter(startDate.atStartOfDay())
+                            || pt.getCreatedAt().isBefore(endDate.atStartOfDay()))
+                .collect(Collectors.toList());
+
+        LOGGER.info("Retrieved PointTransaction list by shopperId= {} , startDate= {} , endDate= {} , PointTransactionList= {}",
+                    shopperId, startDate, endDate, pointTransactionsWithinDateRange);
+
+        return pointTransactionsWithinDateRange;
     }
 
 }

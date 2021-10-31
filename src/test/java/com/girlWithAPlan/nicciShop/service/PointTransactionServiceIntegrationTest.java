@@ -4,6 +4,7 @@ import com.girlWithAPlan.nicciShop.entity.Address;
 import com.girlWithAPlan.nicciShop.entity.PointTransaction;
 import com.girlWithAPlan.nicciShop.entity.Shopper;
 import com.girlWithAPlan.nicciShop.entity.TransactionStatus;
+import com.girlWithAPlan.nicciShop.repository.AddressRepository;
 import com.girlWithAPlan.nicciShop.repository.PointTransactionRepository;
 import com.girlWithAPlan.nicciShop.repository.ShopperRepository;
 import org.junit.jupiter.api.BeforeAll;
@@ -37,6 +38,7 @@ public class PointTransactionServiceIntegrationTest {
 
     private static Clock clock;
     private static PointTransaction newPointTransaction;
+    private static Address address;
     private static Shopper shopper;
 
     @Autowired
@@ -44,6 +46,8 @@ public class PointTransactionServiceIntegrationTest {
 
     @Autowired
     private PointTransactionRepository pointTransactionRepository;
+    @Autowired
+    private AddressRepository addressRepository;
     @Autowired
     private ShopperRepository shopperRepository;
 
@@ -57,17 +61,19 @@ public class PointTransactionServiceIntegrationTest {
                 .createdAt(LocalDateTime.now(clock))
                 .build();
 
+        address = Address.builder()
+                .addressLine("87 Fox Lane")
+                .city("BLOUNT'S GREEN")
+                .postCode("ST14 3GH")
+                .country("United Kingdom")
+                .build();
+
         shopper = Shopper.builder()
                         .firstName("Lily")
                         .lastName("Lilium")
                         .email("Lily@Lilium.com")
                         .dateOfBirth(LocalDate.of(1974, Month.FEBRUARY, 12))
-                        .address(Address.builder()
-                                .addressLine(any(String.class).toString())
-                                .city(any(String.class).toString())
-                                .postCode(any(String.class).toString())
-                                .country(any(String.class).toString())
-                                .build())
+                        .address(address)
                         .build();
     }
 
@@ -145,6 +151,7 @@ public class PointTransactionServiceIntegrationTest {
     public void getPointTransactionsByShopperIdAndDate_whenAllTransactionsAreWithinDateRange_returnsListOfPointTransactions() {
         // given
         // assuming Shopper already exist
+        addressRepository.save(address);
         Shopper shopper1 = shopperRepository.save(shopper);
 
         PointTransaction pointTransaction1 = PointTransaction.builder()
