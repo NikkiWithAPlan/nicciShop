@@ -1,10 +1,8 @@
 package com.girlWithAPlan.nicciShop.service;
 
-import com.girlWithAPlan.nicciShop.entity.Address;
 import com.girlWithAPlan.nicciShop.entity.PointTransaction;
 import com.girlWithAPlan.nicciShop.entity.Shopper;
 import com.girlWithAPlan.nicciShop.entity.TransactionStatus;
-import com.girlWithAPlan.nicciShop.repository.AddressRepository;
 import com.girlWithAPlan.nicciShop.repository.PointTransactionRepository;
 import com.girlWithAPlan.nicciShop.repository.ShopperRepository;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,14 +16,11 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -38,16 +33,12 @@ public class PointTransactionServiceIntegrationTest {
 
     private static Clock clock;
     private static PointTransaction newPointTransaction;
-    private static Address address;
-    private static Shopper shopper;
 
     @Autowired
     private PointTransactionService pointTransactionService;
 
     @Autowired
     private PointTransactionRepository pointTransactionRepository;
-    @Autowired
-    private AddressRepository addressRepository;
     @Autowired
     private ShopperRepository shopperRepository;
 
@@ -60,28 +51,12 @@ public class PointTransactionServiceIntegrationTest {
                 .status(TransactionStatus.COMPLETED)
                 .createdAt(LocalDateTime.now(clock))
                 .build();
-
-        address = Address.builder()
-                .addressLine("87 Fox Lane")
-                .city("BLOUNT'S GREEN")
-                .postCode("ST14 3GH")
-                .country("United Kingdom")
-                .build();
-
-        shopper = Shopper.builder()
-                        .firstName("Lily")
-                        .lastName("Lilium")
-                        .email("Lily@Lilium.com")
-                        .dateOfBirth(LocalDate.of(1974, Month.FEBRUARY, 12))
-                        .address(address)
-                        .build();
     }
 
     @Test
     public void createNewPointTransaction_whenShopperIsValidWithBalanceZero_returnsPointTransaction() {
         // given
-        // assuming Shopper already exist
-        Shopper shopper1 = shopperRepository.save(shopper);
+        Shopper shopper1 = shopperRepository.getById(1L);
 
         shopper1.setBalance(new BigDecimal("0.0000"));
 
@@ -100,8 +75,7 @@ public class PointTransactionServiceIntegrationTest {
     @Test
     public void createNewPointTransaction_whenShopperIsValidWithBalance240_returnsPointTransaction() {
         // given
-        // assuming Shopper already exist
-        Shopper shopper1 = shopperRepository.save(shopper);
+        Shopper shopper1 = shopperRepository.getById(1L);
 
         BigDecimal oldBalance = new BigDecimal("240.0000");
         shopper1.setBalance(oldBalance);
@@ -124,17 +98,16 @@ public class PointTransactionServiceIntegrationTest {
 
         // when
         NoSuchElementException result = assertThrows(NoSuchElementException.class,
-                () -> pointTransactionService.createNewPointTransaction(newPointTransaction, 3L));
+                () -> pointTransactionService.createNewPointTransaction(newPointTransaction, 50L));
 
         // then
-        assertThat(result.getMessage(), is(equalTo("Shopper not found for id= " + 3)));
+        assertThat(result.getMessage(), is(equalTo("Shopper not found for id= " + 50)));
     }
 
     @Test
     public void createNewPointTransaction_whenTransactionStatusIsREFUNDED_throwsIllegalArgumentException() {
         // given
-        // assuming Shopper already exist
-        Shopper shopper1 = shopperRepository.save(shopper);
+        Shopper shopper1 = shopperRepository.getById(1L);
 
         newPointTransaction.setStatus(TransactionStatus.REFUNDED);
 
@@ -150,33 +123,9 @@ public class PointTransactionServiceIntegrationTest {
     @Test
     public void getPointTransactionsByShopperIdAndDate_whenAllTransactionsAreWithinDateRange_returnsListOfPointTransactions() {
         // given
-        // assuming Shopper already exist
-        addressRepository.save(address);
-        Shopper shopper1 = shopperRepository.save(shopper);
+        Shopper shopper1 = shopperRepository.getById(1L);
 
-        PointTransaction pointTransaction1 = PointTransaction.builder()
-                .pointAmount(POINT_AMOUNT)
-                .status(TransactionStatus.COMPLETED)
-                .createdAt(LocalDateTime.of(2020, 4, 13, 11, 34, 12))
-                .shopper(shopper1)
-                .build();
-
-        PointTransaction pointTransaction2 = PointTransaction.builder()
-                .pointAmount(POINT_AMOUNT.add(new BigDecimal("20")))
-                .status(TransactionStatus.COMPLETED)
-                .createdAt(LocalDateTime.of(2020, 6, 17, 11, 34, 12))
-                .shopper(shopper1)
-                .build();
-
-        PointTransaction pointTransaction3 = PointTransaction.builder()
-                .pointAmount(POINT_AMOUNT.add(new BigDecimal("10.34")))
-                .status(TransactionStatus.COMPLETED)
-                .createdAt(LocalDateTime.of(2021, 3, 24, 11, 34, 12))
-                .shopper(shopper1)
-                .build();
-
-        List<PointTransaction> pointTransactionList = Arrays.asList(pointTransaction1, pointTransaction2, pointTransaction3);
-        pointTransactionRepository.saveAll(pointTransactionList);
+        List<PointTransaction> pointTransactionList = pointTransactionRepository.findAllPointTransactionsByShopperId(1L);
 
         // when
         List<PointTransaction> result = pointTransactionService.getPointTransactionsByShopperIdAndDateRange(shopper1.getId(),
@@ -190,8 +139,7 @@ public class PointTransactionServiceIntegrationTest {
     @Test
     public void getPointTransactionsByShopperIdAndDate_whenStartDateIsAfterEndDate_throwsIllegalArgumentException() {
         // given
-        // assuming Shopper already exist
-        Shopper shopper1 = shopperRepository.save(shopper);
+        Shopper shopper1 = shopperRepository.getById(1L);
         LocalDate startDate = LocalDate.of(2021, 4, 13);
         LocalDate endDate = LocalDate.of(2020, 3, 24);
 

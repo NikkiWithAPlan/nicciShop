@@ -1,5 +1,7 @@
 package com.girlWithAPlan.nicciShop.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -47,5 +49,7 @@ public class Address {
     private String country;
 
     @OneToOne(mappedBy = "address")
+    @JsonIgnore
+    @ToString.Exclude
     private Shopper shopper;
 }

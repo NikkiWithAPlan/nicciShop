@@ -1,5 +1,10 @@
 package com.girlWithAPlan.nicciShop.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -57,15 +62,16 @@ public class Shopper {
     private LocalDate dateOfBirth;
 
     @OneToMany(mappedBy = "shopper")
+    @ToString.Exclude
+    @JsonIgnore
     private Set<PointTransaction> pointTransactions;
 
     @DecimalMin(value = "0.0")
     @Digits(integer = 10, fraction = 4)
     private BigDecimal balance;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "address_id")
-    @ToString.Exclude
     @Valid
     private Address address;
 }
