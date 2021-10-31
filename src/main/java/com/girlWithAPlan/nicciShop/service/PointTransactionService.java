@@ -26,7 +26,7 @@ public class PointTransactionService {
         this.shopperRepository = shopperRepository;
     }
 
-    public PointTransaction createNewPointTransaction(PointTransaction pointTransaction, Long shopperId) {
+    public PointTransaction createNewPointTransaction(PointTransaction pointTransaction, Long shopperId) throws NoSuchElementException {
         LOGGER.info("Create new PointTransaction={} for ShopperId={}", pointTransaction, shopperId);
 
         Shopper shopper = shopperRepository.findById(shopperId)

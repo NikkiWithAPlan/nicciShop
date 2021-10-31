@@ -8,6 +8,7 @@ import com.girlWithAPlan.nicciShop.entity.PointTransaction;
 import com.girlWithAPlan.nicciShop.entity.Shopper;
 import com.girlWithAPlan.nicciShop.entity.TransactionStatus;
 import com.girlWithAPlan.nicciShop.service.PointTransactionService;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -22,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneId;
+import java.util.NoSuchElementException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -37,6 +39,9 @@ public class PointTransactionControllerIntegrationTest {
 
     private static final BigDecimal POINT_AMOUNT = new BigDecimal("15.2031");
     private static final ObjectMapper MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
+    private static final Clock CLOCK = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+
+    private static PointTransaction pointTransaction;
 
     @MockBean
     private PointTransactionService pointTransactionServiceMock;
@@ -44,10 +49,8 @@ public class PointTransactionControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Test
-    public void createNewPointTransaction_returnsPointTransaction() throws Exception {
-        // given
-        Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+    @BeforeAll
+    public static void setup() {
         Address address = Address.builder()
                 .id(3L)
                 .addressLine("87 Fox Lane")
@@ -65,14 +68,18 @@ public class PointTransactionControllerIntegrationTest {
                 .address(address)
                 .build();
 
-        PointTransaction pointTransaction = PointTransaction.builder()
+        pointTransaction = PointTransaction.builder()
                 .pointTransactionId(1L)
                 .pointAmount(POINT_AMOUNT)
                 .status(TransactionStatus.COMPLETED)
-                .createdAt(LocalDateTime.now(clock))
+                .createdAt(LocalDateTime.now(CLOCK))
                 .shopper(shopper)
                 .build();
+    }
 
+    @Test
+    public void createNewPointTransaction_returnsPointTransaction() throws Exception {
+        // given
         given(pointTransactionServiceMock.createNewPointTransaction(any(PointTransaction.class), anyLong()))
                 .willReturn(pointTransaction);
 
@@ -86,6 +93,23 @@ public class PointTransactionControllerIntegrationTest {
 
         // then
         assertThat(getPointTransaction(result), is(equalTo(pointTransaction)));
+    }
+
+    @Test
+    public void createNewPointTransaction_returnsUnprocessableEntityStatus() throws Exception {
+        // given
+        given(pointTransactionServiceMock.createNewPointTransaction(any(PointTransaction.class), anyLong()))
+                .willThrow(NoSuchElementException.class);
+
+        // when
+        String result = mockMvc.perform(post("/api/createPointTransaction")
+                        .content(getAsJsonString(pointTransaction))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn().getResponse().getContentAsString();
+
+        // then
     }
 
     private String getAsJsonString(final Object object) {
