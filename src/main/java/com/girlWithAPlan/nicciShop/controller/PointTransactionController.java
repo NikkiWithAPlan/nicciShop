@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -50,7 +49,7 @@ public class PointTransactionController {
         try {
             ResponseEntity<PointTransaction> responseEntity =
                     new ResponseEntity<>(pointTransactionService.createNewPointTransaction(pointTransaction, shopperId),
-                                        HttpStatus.CREATED);
+                            HttpStatus.CREATED);
 
             LOGGER.info("New PointTransaction has been successfully created, {}", pointTransaction);
 
@@ -62,8 +61,7 @@ public class PointTransactionController {
     }
 
     @GetMapping("pointTransactions/{shopperId}/{startDate}/{endDate}")
-    @ResponseStatus(HttpStatus.OK)
-    public List<PointTransaction> getPointTransactionsByShopperIdAndDate(
+    public ResponseEntity<List<PointTransaction>> getPointTransactionsByShopperIdAndDate(
             @PathVariable(value = "shopperId") Long shopperId,
             @PathVariable(value = "startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") @Past LocalDate startDate,
             @PathVariable(value = "endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") @PastOrPresent LocalDate endDate) {
@@ -71,6 +69,17 @@ public class PointTransactionController {
         LOGGER.info("GET request was submitted to retrieve all PointTransactions by shopperId= {} , startDate= {} and endDate= {}",
                 shopperId, startDate, endDate);
 
-        return pointTransactionService.getPointTransactionsByShopperIdAndDateRange(shopperId, startDate, endDate);
+        try {
+            ResponseEntity<List<PointTransaction>> responseEntity =
+                    new ResponseEntity<>(pointTransactionService.getPointTransactionsByShopperIdAndDateRange(shopperId, startDate, endDate),
+                            HttpStatus.OK);
+
+            LOGGER.info("PointTransaction list has been retrieved successfully, {}", responseEntity.getBody());
+
+            return responseEntity;
+        } catch (NoSuchElementException e) {
+            LOGGER.warn("Requested PointTransaction list cannot be retrieved, reason= {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
     }
 }

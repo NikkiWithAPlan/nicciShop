@@ -88,11 +88,11 @@ public class PointTransactionControllerIntegrationTest {
 
         // when
         String result = mockMvc.perform(post("/api/createPointTransaction")
-                                        .content(getAsJsonString(newPointTransaction))
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .accept(MediaType.APPLICATION_JSON))
-                                .andExpect(status().isCreated())
-                                .andReturn().getResponse().getContentAsString();
+                        .content(getAsJsonString(newPointTransaction))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
 
         // then
         assertThat(getPointTransaction(result), is(equalTo(newPointTransaction)));
@@ -152,9 +152,9 @@ public class PointTransactionControllerIntegrationTest {
 
         // when
         String result = mockMvc.perform(get("/api/pointTransactions/{id}/{startDate}/{endDate}",
-                            1L,
-                                    LocalDate.of(2020, 4, 13),
-                                    LocalDate.of(2021, 3, 12))
+                        1L,
+                        LocalDate.of(2020, 4, 13),
+                        LocalDate.of(2021, 3, 12))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
@@ -178,9 +178,7 @@ public class PointTransactionControllerIntegrationTest {
                 .andExpect(status().isUnprocessableEntity());
     }
 
-
-
-        private String getAsJsonString(final Object object) {
+    private String getAsJsonString(final Object object) {
         try {
             return MAPPER.writeValueAsString(object);
         } catch (JsonProcessingException e) {
