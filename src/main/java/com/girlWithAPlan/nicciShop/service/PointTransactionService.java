@@ -55,6 +55,10 @@ public class PointTransactionService {
         shopperRepository.findById(shopperId)
                 .orElseThrow(() -> new NoSuchElementException("Shopper not found for id= " + shopperId));
 
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("startDate= " + startDate + " cannot be after endDate= " + endDate);
+        }
+
         List<PointTransaction> allPointTransactionsByShopperId = pointTransactionRepository.findAllPointTransactionsByShopperId(shopperId);
 
         List<PointTransaction> pointTransactionsWithinDateRange = allPointTransactionsByShopperId.stream()
