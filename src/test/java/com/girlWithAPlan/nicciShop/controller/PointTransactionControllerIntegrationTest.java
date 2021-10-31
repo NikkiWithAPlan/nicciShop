@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -24,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -149,13 +149,17 @@ public class PointTransactionControllerIntegrationTest {
         given(pointTransactionServiceMock.getPointTransactionsByShopperIdAndDateRange(anyLong(), any(LocalDate.class), any(LocalDate.class)))
                 .willReturn(List.of(pointTransaction));
 
-        // when // then
-        mockMvc.perform(get("/api/pointTransactions/{id}/{startDate}/{endDate}",
+        // when
+        String result = mockMvc.perform(get("/api/pointTransactions/{id}/{startDate}/{endDate}",
                             1L,
                                     LocalDate.of(2020, 4, 13),
                                     LocalDate.of(2021, 3, 12))
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        // then
+        assertThat(getPointTransactionList(result).get(0), is(equalTo(pointTransaction)));
     }
 
     private String getAsJsonString(final Object object) {
@@ -169,6 +173,14 @@ public class PointTransactionControllerIntegrationTest {
     private PointTransaction getPointTransaction(final String jsonString) {
         try {
             return MAPPER.readValue(jsonString, PointTransaction.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<PointTransaction> getPointTransactionList(final String jsonString) {
+        try {
+            return Arrays.asList(MAPPER.readValue(jsonString, PointTransaction[].class));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
