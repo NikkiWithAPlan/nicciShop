@@ -48,6 +48,10 @@ The Merchant’s web shop submits a request to the Service, the Service responds
 
 The Merchant’s web shop submits a change transaction request to the Service, the Service updates the transaction status and balance; and responds with the updated transaction.
 
-## Implementation status
+## Implementation Status
 
 For now only Use Case 1 and 2 are implemented.
+
+## Swagger UI to Try the Service
+
+http://localhost:8080/swagger-ui/#/
