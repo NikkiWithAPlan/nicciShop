@@ -91,7 +91,7 @@ public class PointTransactionService {
 
         List<PointTransaction> pointTransactionsWithinDateRange = allPointTransactionsByShopperId.stream()
                 .filter(pt -> pt.getCreatedAt().isAfter(startDate.atStartOfDay())
-                            || pt.getCreatedAt().isBefore(endDate.atStartOfDay()))
+                            && pt.getCreatedAt().isBefore(endDate.atStartOfDay()))
                 .collect(Collectors.toList());
 
         LOGGER.info("Retrieved PointTransaction list by shopperId= {} , startDate= {} , endDate= {} , PointTransactionList= {}",

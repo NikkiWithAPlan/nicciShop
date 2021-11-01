@@ -129,7 +129,7 @@ public class PointTransactionServiceIntegrationTest {
 
         // when
         List<PointTransaction> result = pointTransactionService.getPointTransactionsByShopperIdAndDateRange(shopper1.getId(),
-                                                                    LocalDate.of(2020, 4, 13),
+                                                                    LocalDate.of(2018, 4, 13),
                                                                     LocalDate.of(2021, 3, 24));
 
         // then
