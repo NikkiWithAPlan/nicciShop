@@ -37,7 +37,6 @@ public class PointTransaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore
     private Long pointTransactionId;
 
     @DecimalMin(value = "0.0", inclusive = false)
