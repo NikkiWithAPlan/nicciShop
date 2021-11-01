@@ -1,9 +1,6 @@
 package com.girlWithAPlan.nicciShop.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,7 +36,8 @@ import java.util.Objects;
 public class PointTransaction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private Long pointTransactionId;
 
     @DecimalMin(value = "0.0", inclusive = false)
@@ -58,6 +56,7 @@ public class PointTransaction {
     @ManyToOne
     @JoinColumn(name = "shopper_id", nullable = false)
     @Valid
+    @JsonIgnore
     private Shopper shopper;
 
     @Override

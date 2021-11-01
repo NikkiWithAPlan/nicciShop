@@ -52,7 +52,6 @@ public class PointTransactionControllerIntegrationTest {
     @BeforeAll
     public static void setup() {
         newPointTransaction = PointTransaction.builder()
-                .pointTransactionId(1L)
                 .pointAmount(POINT_AMOUNT)
                 .status(TransactionStatus.COMPLETED)
                 .createdAt(LocalDateTime.now(CLOCK))
@@ -74,7 +73,9 @@ public class PointTransactionControllerIntegrationTest {
                 .andReturn().getResponse().getContentAsString();
 
         // then
-        assertThat(getPointTransaction(result), is(equalTo(newPointTransaction)));
+        assertThat(getPointTransaction(result).getPointAmount(), is(equalTo(newPointTransaction.getPointAmount())));
+        assertThat(getPointTransaction(result).getCreatedAt(), is(equalTo(newPointTransaction.getCreatedAt())));
+        assertThat(getPointTransaction(result).getStatus(), is(equalTo(newPointTransaction.getStatus())));
     }
 
     @Test
@@ -127,7 +128,9 @@ public class PointTransactionControllerIntegrationTest {
                 .andReturn().getResponse().getContentAsString();
 
         // then
-        assertThat(getPointTransactionList(result).get(0), is(equalTo(pointTransaction)));
+        assertThat(getPointTransactionList(result).get(0).getPointAmount(), is(equalTo(pointTransaction.getPointAmount())));
+        assertThat(getPointTransactionList(result).get(0).getCreatedAt(), is(equalTo(pointTransaction.getCreatedAt())));
+        assertThat(getPointTransactionList(result).get(0).getStatus(), is(equalTo(pointTransaction.getStatus())));
     }
 
     @Test

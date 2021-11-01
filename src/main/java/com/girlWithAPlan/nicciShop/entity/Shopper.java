@@ -1,10 +1,5 @@
 package com.girlWithAPlan.nicciShop.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +8,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -63,7 +57,6 @@ public class Shopper {
 
     @OneToMany(mappedBy = "shopper")
     @ToString.Exclude
-    @JsonIgnore
     private Set<PointTransaction> pointTransactions;
 
     @DecimalMin(value = "0.0")
