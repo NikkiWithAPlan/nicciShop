@@ -3,9 +3,7 @@ package com.girlWithAPlan.nicciShop.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.girlWithAPlan.nicciShop.entity.Address;
 import com.girlWithAPlan.nicciShop.entity.PointTransaction;
-import com.girlWithAPlan.nicciShop.entity.Shopper;
 import com.girlWithAPlan.nicciShop.entity.TransactionStatus;
 import com.girlWithAPlan.nicciShop.service.PointTransactionService;
 import org.junit.jupiter.api.BeforeAll;
@@ -21,7 +19,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
@@ -54,29 +51,11 @@ public class PointTransactionControllerIntegrationTest {
 
     @BeforeAll
     public static void setup() {
-        Address address = Address.builder()
-                .id(3L)
-                .addressLine("87 Fox Lane")
-                .city("BLOUNT'S GREEN")
-                .postCode("ST14 3GH")
-                .country("United Kingdom")
-                .build();
-
-        Shopper shopper = Shopper.builder()
-                .id(3L)
-                .firstName("Lily")
-                .lastName("Lilium")
-                .email("Lily@Lilium.com")
-                .dateOfBirth(LocalDate.of(1974, Month.FEBRUARY, 12))
-                .address(address)
-                .build();
-
         newPointTransaction = PointTransaction.builder()
                 .pointTransactionId(1L)
                 .pointAmount(POINT_AMOUNT)
                 .status(TransactionStatus.COMPLETED)
                 .createdAt(LocalDateTime.now(CLOCK))
-                .shopper(shopper)
                 .build();
     }
 
@@ -87,7 +66,7 @@ public class PointTransactionControllerIntegrationTest {
                 .willReturn(newPointTransaction);
 
         // when
-        String result = mockMvc.perform(post("/api/createPointTransaction")
+        String result = mockMvc.perform(post("/api/createPointTransaction/{id}", 1)
                         .content(getAsJsonString(newPointTransaction))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -101,26 +80,12 @@ public class PointTransactionControllerIntegrationTest {
     @Test
     public void createNewPointTransaction_whenShopperDoesNotExist_returnsUnprocessableEntityStatus() throws Exception {
         // given
+        long shopperId = 20L;
         given(pointTransactionServiceMock.createNewPointTransaction(any(PointTransaction.class), anyLong()))
-                .willThrow(new NoSuchElementException("Shopper not found for id=" + newPointTransaction.getShopper().getId()));
+                .willThrow(new NoSuchElementException("Shopper not found for id=" + shopperId));
 
         // when // then
-        mockMvc.perform(post("/api/createPointTransaction")
-                        .content(getAsJsonString(newPointTransaction))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnprocessableEntity());
-    }
-
-    @Test
-    public void createNewPointTransaction_whenShopperIsNull_returnsUnprocessableEntityStatus() throws Exception {
-        // given
-        newPointTransaction.setShopper(null);
-        given(pointTransactionServiceMock.createNewPointTransaction(any(PointTransaction.class), anyLong()))
-                .willThrow(NoSuchElementException.class);
-
-        // when // then
-        mockMvc.perform(post("/api/createPointTransaction")
+        mockMvc.perform(post("/api/createPointTransaction/{shopperId}", shopperId)
                         .content(getAsJsonString(newPointTransaction))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -135,7 +100,7 @@ public class PointTransactionControllerIntegrationTest {
                 .willThrow(new IllegalArgumentException("TransactionStatus cannot be " + newPointTransaction.getStatus()));
 
         // when // then
-        mockMvc.perform(post("/api/createPointTransaction")
+        mockMvc.perform(post("/api/createPointTransaction/{id}", 1)
                         .content(getAsJsonString(newPointTransaction))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
