@@ -42,20 +42,15 @@ public class PointTransactionController {
      * Sends a request to {@link PointTransactionService} with a new PointTransaction for a Shopper
      *
      * @param pointTransaction  the new PointTransaction which needs to be created
+     * @param shopperId         for which the transaction should be saved
      *
      * @return                  the created new PointTransaction with status code 200.
      *                          Otherwise, returns status code 422.
      */
-    @PostMapping("/createPointTransaction")
-    public ResponseEntity<PointTransaction> createPointTransaction(@Valid @RequestBody PointTransaction pointTransaction) {
+    @PostMapping("/createPointTransaction/{shopperId}")
+    public ResponseEntity<PointTransaction> createPointTransaction(@Valid @RequestBody PointTransaction pointTransaction,
+                                                                   @PathVariable(value = "shopperId") Long shopperId) {
         LOGGER.info("POST request was submitted to create new PointTransaction= {}", pointTransaction);
-
-        if (pointTransaction.getShopper() == null) {
-            LOGGER.warn("PointTransaction cannot be created, reason= Shopper must exist for PointTransaction={}", pointTransaction);
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-
-        Long shopperId = pointTransaction.getShopper().getId();
 
         try {
             ResponseEntity<PointTransaction> responseEntity =
