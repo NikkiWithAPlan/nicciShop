@@ -135,7 +135,7 @@ public class PointTransactionServiceIntegrationTest {
         // given
         Shopper shopper1 = shopperRepository.getById(1L);
         LocalDate startDate = LocalDate.of(2018, 4, 13);
-        LocalDate endDate = LocalDate.of(2021, 3, 24);
+        LocalDate endDate = LocalDate.of(2020, 2, 15);
 
         List<PointTransaction> pointTransactionList = pointTransactionRepository.findAllPointTransactionsByShopperId(1L);
 
@@ -145,8 +145,6 @@ public class PointTransactionServiceIntegrationTest {
                                                                                                             endDate);
 
         // then
-        assertThat(result.size(), is(equalTo(pointTransactionList.size())));
-        assertThat(result, is(pointTransactionList));
         assertThat(result,
                 everyItem(hasProperty("createdAt", LocalDateTimeMatchers.after(LocalDateTime.of(startDate, LocalTime.MIDNIGHT)))));
         assertThat(result,
