@@ -5,6 +5,7 @@ import com.girlWithAPlan.nicciShop.entity.Shopper;
 import com.girlWithAPlan.nicciShop.entity.TransactionStatus;
 import com.girlWithAPlan.nicciShop.repository.PointTransactionRepository;
 import com.girlWithAPlan.nicciShop.repository.ShopperRepository;
+import org.exparity.hamcrest.date.LocalDateTimeMatchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +17,15 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -124,16 +128,21 @@ public class PointTransactionServiceIntegrationTest {
     public void getPointTransactionsByShopperIdAndDate_whenAllTransactionsAreWithinDateRange_returnsListOfPointTransactions() {
         // given
         Shopper shopper1 = shopperRepository.getById(1L);
+        LocalDate startDate = LocalDate.of(2018, 4, 13);
+        LocalDate endDate = LocalDate.of(2020, 2, 15);
 
         List<PointTransaction> pointTransactionList = pointTransactionRepository.findAllPointTransactionsByShopperId(1L);
 
         // when
         List<PointTransaction> result = pointTransactionService.getPointTransactionsByShopperIdAndDateRange(shopper1.getId(),
-                                                                    LocalDate.of(2018, 4, 13),
-                                                                    LocalDate.of(2021, 3, 24));
+                                                                                                            startDate,
+                                                                                                            endDate);
 
         // then
-        assertThat(result.size(), is(equalTo(pointTransactionList.size())));
+        assertThat(result,
+                everyItem(hasProperty("createdAt", LocalDateTimeMatchers.after(LocalDateTime.of(startDate, LocalTime.MIDNIGHT)))));
+        assertThat(result,
+                everyItem(hasProperty("createdAt", LocalDateTimeMatchers.before(LocalDateTime.of(endDate, LocalTime.MIDNIGHT)))));
     }
 
     @Test
